@@ -1,0 +1,11 @@
+#!/bin/bash -eu
+tag="snap.$SNAP_INSTANCE_NAME.hook.post-refresh"
+exec 1> >(tee >(logger --tag=$tag))
+exec 2> >(logger --stderr --priority error --tag=$tag)
+
+# WSL layout symlinks (force recreate)
+ln -sfn /var/lib/snapd/hostfs/usr/lib/wsl/lib     "$SNAP_COMMON/usr/lib/wsl/lib"     2>/dev/null || true
+ln -sfn /var/lib/snapd/hostfs/usr/lib/wsl/drivers "$SNAP_COMMON/usr/lib/wsl/drivers" 2>/dev/null || true
+
+# Refresh active engine selection
+modelctl use-engine --fix --assume-yes --fallback=cpu

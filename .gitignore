@@ -1,0 +1,12 @@
+*.snap
+*.comp
+squashfs-root/
+parts/
+prime/
+stage/
+overlay/
+partitions/
+.workshop.lock
+.snapd-relocate/
+components/
+*.gguf

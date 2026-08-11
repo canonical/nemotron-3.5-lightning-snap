@@ -1,0 +1,18 @@
+#!/bin/bash -eu
+tag="snap.$SNAP_INSTANCE_NAME.hook.install"
+exec 1> >(tee >(logger --tag=$tag))
+exec 2> >(logger --stderr --priority error --tag=$tag)
+
+# Seed default package config
+modelctl set --package http.port=8346
+modelctl set --package http.host=127.0.0.1
+modelctl set --package webui.http.port=8347
+modelctl set --package webui.http.host=127.0.0.1
+modelctl set --package verbose=false
+
+# WSL layout symlinks
+ln -sfn /var/lib/snapd/hostfs/usr/lib/wsl/lib     "$SNAP_COMMON/usr/lib/wsl/lib"     2>/dev/null || true
+ln -sfn /var/lib/snapd/hostfs/usr/lib/wsl/drivers "$SNAP_COMMON/usr/lib/wsl/drivers" 2>/dev/null || true
+
+# Auto-select best engine (falls back to cpu if no GPU found)
+modelctl use-engine --auto --components --assume-yes --fallback=cpu

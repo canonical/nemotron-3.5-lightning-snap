@@ -1,0 +1,286 @@
+name: nemotron-3-5-lightning
+title: Nemotron 3.5 Lightning
+summary: Local AI with Nemotron 3.5 Lightning inference snap
+description: |
+  NVIDIA Nemotron 3.5 Lightning is a customizable open model built for fast, always-on agents that run anywhere, from edge devices to local systems, datacenters, and the cloud.
+
+  Use this snap to quickly install an optimized environment for local inference with Nemotron 3.5 Lightning.
+
+  The snap includes the following hardware-optimized inference engines:
+
+  * cpu: Optimized for x64 and ARM (armv8, armv9) CPUs
+  * nvidia-gpu: CUDA-enabled GPU acceleration
+
+  The most suitable engine is automatically selected based on the available hardware.
+  
+  **Install:**
+
+  `sudo snap install nemotron-3-5-lightning`
+
+  **Run:**
+
+  `nemotron-3-5-lightning`
+
+  Some accelerators require extra drivers to be usable with this snap:
+  https://documentation.ubuntu.com/inference-snaps/how-to/setup/drivers/
+
+  **License:**
+
+  The Nemotron 3.5 Lightning model is provided by NVIDIA Corporation under the NVIDIA Open Model License:
+  https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/
+  
+  The licenses of all the bundled software can be found after installing the snap at
+  `/snap/nemotron-3-5-lightning/current/usr/share/doc`.
+
+icon: snap/gui/icon-256.png
+website: https://documentation.ubuntu.com/inference-snaps
+source-code: https://github.com/canonical/nemotron-3.5-lightning-snap
+issues: https://github.com/canonical/inference-snaps/issues
+
+adopt-info: version
+
+base: core24
+grade: stable
+confinement: strict
+compression: lzo
+
+assumes:
+  - snapd2.68
+
+platforms:
+  amd64:
+  arm64:
+
+environment:
+  SNAP_COMPONENTS: /snap/$SNAP_INSTANCE_NAME/components/$SNAP_REVISION
+  ARCH_TRIPLET: $CRAFT_ARCH_TRIPLET_BUILD_FOR
+  STATUS_SHARE: $SNAP_DATA/share/status
+  OWUI_SHARE: $SNAP_DATA/share/open-webui
+
+plugs:
+  home:
+    read: all
+
+slots:
+  status:
+    interface: content
+    source:
+      read:
+        - &status-share $SNAP_DATA/share/status
+  open-webui:
+    interface: content
+    content: open-webui-config
+    source:
+      read:
+        - &owui-share $SNAP_DATA/share/open-webui
+
+layout:
+  /usr/lib/wsl:
+    bind: $SNAP_COMMON/usr/lib/wsl
+
+hooks:
+  install:
+    plugs: &install-plugs
+      - hardware-observe
+      - opengl
+  post-refresh:
+    plugs: *install-plugs
+
+apps:
+  nemotron-3-5-lightning:
+    command: bin/nemotron-3-5-lightning
+    completer: bin/snap-completer.bash
+    plugs:
+      - hardware-observe
+      - opengl
+      - network
+      - desktop
+    environment:
+      ADDITIONAL_FEATURES: chat, webui
+
+  server:
+    command: bin/server.sh
+    daemon: simple
+    plugs:
+      - network-bind
+      - hardware-observe
+      - opengl
+      - home
+
+  server-webui:
+    command: bin/server-webui.sh
+    daemon: simple
+    plugs:
+      - network-bind
+
+components:
+  model-q4-k-m-1-of-6: &model-q4-k-m
+    type: standard
+    summary: Nemotron 3.5 Lightning Q4_K_M GGUF
+    description: Model weights split into 6 parts.
+  model-q4-k-m-2-of-6:
+    << : *model-q4-k-m
+  model-q4-k-m-3-of-6:
+    << : *model-q4-k-m
+  model-q4-k-m-4-of-6:
+    << : *model-q4-k-m
+  model-q4-k-m-5-of-6:
+    << : *model-q4-k-m
+  model-q4-k-m-6-of-6:
+    << : *model-q4-k-m
+  llamacpp:
+    type: standard
+    summary: llama.cpp CPU/generic runtime
+    description: llama.cpp runtime for CPU inference.
+  llamacpp-cuda:
+    type: standard
+    summary: llama.cpp CUDA runtime
+    description: llama.cpp runtime with CUDA acceleration for NVIDIA GPUs.
+
+parts:
+  version:
+    after: [cli]
+    plugin: nil
+    source: . # To regenerate the git hash on every change
+    build-packages:
+      - jq
+      - git
+    override-pull: |
+      # Do nothing. This significantly reduces build time when sourcing large files.
+    override-build: |
+      set -eo pipefail
+      cli_version=$($CRAFT_STAGE/bin/modelctl version --format=json | jq .cli --raw-output)
+      git_hash=$(git -C "$SNAPCRAFT_PROJECT_DIR" describe --always)
+      craftctl set version="${cli_version#v}+${git_hash}"
+
+  cli:
+    source:
+      - on amd64: https://github.com/canonical/inference-snaps-cli/releases/download/v2.0.0-beta.12/inference-snaps-cli-linux-amd64.tar.xz
+      - on arm64: https://github.com/canonical/inference-snaps-cli/releases/download/v2.0.0-beta.12/inference-snaps-cli-linux-arm64.tar.xz
+    plugin: dump
+    override-build: |
+      # For tab completion
+      ln --symbolic ./modelctl bin/$SNAPCRAFT_PROJECT_NAME
+
+      craftctl default
+
+  cli-dependencies:
+    plugin: nil
+    stage-packages:
+      - pciutils # lspci
+
+  # Used for NVIDIA vRAM and CUDA Capability detection.
+  # Only the binary is included to avoid staging libraries, which should instead be provided by the host through the opengl interface.
+  cli-nvidia-smi:
+    plugin: nil
+    build-packages:
+      - nvidia-utils-595
+    override-build: |
+      mkdir -p $CRAFT_PART_INSTALL/usr/bin
+      cp /usr/bin/nvidia-smi $CRAFT_PART_INSTALL/usr/bin/
+
+      license_dir=$CRAFT_PART_INSTALL/usr/share/doc/nvidia-utils-595/
+      mkdir -p $license_dir
+      cp /usr/share/doc/nvidia-utils-595/copyright $license_dir/
+
+  webui:
+    plugin: dump
+    source: https://github.com/canonical/inference-snaps-webui/releases/download/v1.1.0/inference-snaps-webui.tar.xz
+    organize:
+      "*": webui/
+
+  engines:
+    source: engines
+    plugin: dump
+    organize:
+      "*": engines/
+
+  models:
+    source: models
+    plugin: dump
+    organize:
+      "*": models/
+
+  runtimes:
+    source: runtimes
+    plugin: dump
+    organize:
+      "*": runtimes/
+
+  scripts:
+    source: scripts
+    plugin: dump
+    stage-packages:
+      - jq
+    organize:
+      "server.sh": bin/
+      "server-webui.sh": bin/
+      "export-shared-configs.sh": bin/
+
+  llamacpp:
+    plugin: dump
+    source:
+      - on amd64: https://github.com/canonical/llama.cpp-builds/releases/download/b10344/llamacpp-amd64.tar.gz
+      - on arm64: https://github.com/canonical/llama.cpp-builds/releases/download/b10344/llamacpp-arm64.tar.gz
+    override-build: |
+      # Move license files to be included in the snap, not the component
+      mkdir -p $CRAFT_PRIME/usr/share/doc/
+      mv licenses $CRAFT_PRIME/usr/share/doc/llama.cpp
+
+      craftctl default
+    stage-packages:
+      - libgomp1
+    organize:
+      "*": (component/llamacpp)
+
+  llamacpp-cuda:
+    plugin: dump
+    source:
+      - on amd64: https://github.com/canonical/llama.cpp-builds/releases/download/b10344/llamacpp-amd64+cuda12.9.tar.gz
+      - on arm64: https://github.com/canonical/llama.cpp-builds/releases/download/b10344/llamacpp-arm64+cuda12.9.tar.gz
+    override-build: |
+      # Move license files to be included in the snap, not the component
+      mkdir -p $CRAFT_PRIME/usr/share/doc/
+      mv licenses $CRAFT_PRIME/usr/share/doc/llama.cpp-cuda
+
+      craftctl default
+    stage-packages:
+      - libgomp1
+    organize:
+      "*": (component/llamacpp-cuda)
+
+  local-component-files:
+    # Use the cmake plugin instead of "dump" to prevent unwanted copies
+    # See https://github.com/canonical/craft-parts/issues/1609
+    plugin: cmake
+    source: components
+    override-build: |
+      cp -rf --archive --link --no-dereference ${CRAFT_PART_SRC}/* ${CRAFT_PART_INSTALL}
+    organize:
+      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00001-of-00006.gguf": (component/model-q4-k-m-1-of-6)
+      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00002-of-00006.gguf": (component/model-q4-k-m-2-of-6)
+      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00003-of-00006.gguf": (component/model-q4-k-m-3-of-6)
+      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00004-of-00006.gguf": (component/model-q4-k-m-4-of-6)
+      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00005-of-00006.gguf": (component/model-q4-k-m-5-of-6)
+      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00006-of-00006.gguf": (component/model-q4-k-m-6-of-6)
+    prime:
+      # Exclude everything not explicitly organized
+      - -*
+
+  notice:
+    plugin: nil
+    source: NOTICE
+    source-type: file
+    override-build: |
+      license_dir=$CRAFT_PART_INSTALL/usr/share/doc
+      mkdir -p $license_dir
+      cp NOTICE $license_dir/
+      # Add license files referenced in NOTICE
+      cp $SNAPCRAFT_PROJECT_DIR/LICENSE $license_dir/
+      cp $SNAPCRAFT_PROJECT_DIR/NVIDIA-Nemotron-Open-Model-License-12-12-25.pdf $license_dir/
+
+lint:
+  ignore:
+    - metadata:
+      - license
+      - contact
