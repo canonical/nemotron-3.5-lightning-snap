@@ -21,9 +21,9 @@ devices:
 runtime: llamacpp-cuda
 
 model:
-  default: nemotron-3.5-lightning-30b-a3b
+  default: nemotron-3.5-lightning-30b-a3b-nvfp4
   options:
-    - nemotron-3.5-lightning-30b-a3b
+    - nemotron-3.5-lightning-30b-a3b-nvfp4
 
 configurations:
   sleep-idle-seconds: 600
