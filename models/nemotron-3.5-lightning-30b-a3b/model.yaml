@@ -24,7 +24,6 @@ components:
 environment:
   - MODELS_DIR=/tmp/nemotron-3.5-lightning-30b-a3b-parts
   - MODEL_FILE=$MODELS_DIR/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00001-of-00006.gguf
-  - MODEL_NAME=nemotron-3.5-lightning-30b-a3b
 
 layout:
   $MODELS_DIR/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00001-of-00006.gguf:
