@@ -17,7 +17,7 @@ concurrency:
 jobs:
   cicd:
     if: github.repository == 'canonical/nemotron-3.5-lightning-snap' # do not run on forks
-    uses: canonical/inference-snaps-dev/.github/workflows/reuse-cicd.yaml@hf-token #v2
+    uses: canonical/inference-snaps-dev/.github/workflows/reuse-cicd.yaml@v2
     with:
       build-runner: |
         [
@@ -35,4 +35,3 @@ jobs:
         ]
     secrets:
       store-credentials: ${{ secrets.STORE_LOGIN_MAIN }}
-      hf-token: ${{ secrets.HF_TOKEN }}
