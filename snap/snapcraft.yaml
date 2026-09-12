@@ -128,6 +128,18 @@ components:
     << : *model-q4-k-m
   model-q4-k-m-6-of-6:
     << : *model-q4-k-m
+  model-nvfp4-1-of-5: &model-nvfp4
+    type: standard
+    summary: Nemotron 3.5 Lightning NVFP4 GGUF
+    description: Model weights split into 5 parts.
+  model-nvfp4-2-of-5:
+    << : *model-nvfp4
+  model-nvfp4-3-of-5:
+    << : *model-nvfp4
+  model-nvfp4-4-of-5:
+    << : *model-nvfp4
+  model-nvfp4-5-of-5:
+    << : *model-nvfp4
   llamacpp:
     type: standard
     summary: llama.cpp CPU/generic runtime
@@ -249,20 +261,25 @@ parts:
     organize:
       "*": (component/llamacpp-cuda)
 
-  local-component-files:
+  model-weights:
     # Use the cmake plugin instead of "dump" to prevent unwanted copies
     # See https://github.com/canonical/craft-parts/issues/1609
     plugin: cmake
-    source: components
+    source: model-weights
     override-build: |
       cp -rf --archive --link --no-dereference ${CRAFT_PART_SRC}/* ${CRAFT_PART_INSTALL}
     organize:
-      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00001-of-00006.gguf": (component/model-q4-k-m-1-of-6)
-      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00002-of-00006.gguf": (component/model-q4-k-m-2-of-6)
-      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00003-of-00006.gguf": (component/model-q4-k-m-3-of-6)
-      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00004-of-00006.gguf": (component/model-q4-k-m-4-of-6)
-      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00005-of-00006.gguf": (component/model-q4-k-m-5-of-6)
-      "nemotron-3.5-lightning-30b-a3b/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00006-of-00006.gguf": (component/model-q4-k-m-6-of-6)
+      "Nemotron-3.5-Lightning-30B-A3B-Q4_K_M/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00001-of-00006.gguf": (component/model-q4-k-m-1-of-6)
+      "Nemotron-3.5-Lightning-30B-A3B-Q4_K_M/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00002-of-00006.gguf": (component/model-q4-k-m-2-of-6)
+      "Nemotron-3.5-Lightning-30B-A3B-Q4_K_M/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00003-of-00006.gguf": (component/model-q4-k-m-3-of-6)
+      "Nemotron-3.5-Lightning-30B-A3B-Q4_K_M/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00004-of-00006.gguf": (component/model-q4-k-m-4-of-6)
+      "Nemotron-3.5-Lightning-30B-A3B-Q4_K_M/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00005-of-00006.gguf": (component/model-q4-k-m-5-of-6)
+      "Nemotron-3.5-Lightning-30B-A3B-Q4_K_M/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-00006-of-00006.gguf": (component/model-q4-k-m-6-of-6)
+      "Nemotron-3.5-Lightning-30B-A3B-NVFP4/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00001-of-00005.gguf": (component/model-nvfp4-1-of-5)
+      "Nemotron-3.5-Lightning-30B-A3B-NVFP4/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00002-of-00005.gguf": (component/model-nvfp4-2-of-5)
+      "Nemotron-3.5-Lightning-30B-A3B-NVFP4/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00003-of-00005.gguf": (component/model-nvfp4-3-of-5)
+      "Nemotron-3.5-Lightning-30B-A3B-NVFP4/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00004-of-00005.gguf": (component/model-nvfp4-4-of-5)
+      "Nemotron-3.5-Lightning-30B-A3B-NVFP4/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00005-of-00005.gguf": (component/model-nvfp4-5-of-5)
     prime:
       # Exclude everything not explicitly organized
       - -*
