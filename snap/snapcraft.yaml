@@ -54,25 +54,18 @@ platforms:
 environment:
   SNAP_COMPONENTS: /snap/$SNAP_INSTANCE_NAME/components/$SNAP_REVISION
   ARCH_TRIPLET: $CRAFT_ARCH_TRIPLET_BUILD_FOR
-  STATUS_SHARE: $SNAP_DATA/share/status
-  OWUI_SHARE: $SNAP_DATA/share/open-webui
 
 plugs:
   home:
     read: all
 
 slots:
-  status:
+  provider:
     interface: content
+    content: inference-provider
     source:
       read:
-        - &status-share $SNAP_DATA/share/status
-  open-webui:
-    interface: content
-    content: open-webui-config
-    source:
-      read:
-        - &owui-share $SNAP_DATA/share/open-webui
+        - $SNAP_COMMON/share/provider
 
 layout:
   /usr/lib/wsl:
@@ -155,8 +148,8 @@ parts:
 
   cli:
     source:
-      - on amd64: https://github.com/canonical/inference-snaps-cli/releases/download/v2.0.0-beta.13/inference-snaps-cli-linux-amd64.tar.xz
-      - on arm64: https://github.com/canonical/inference-snaps-cli/releases/download/v2.0.0-beta.13/inference-snaps-cli-linux-arm64.tar.xz
+      - on amd64: https://github.com/canonical/inference-snaps-cli/releases/download/v2.0.0-beta.14/inference-snaps-cli-linux-amd64.tar.xz
+      - on arm64: https://github.com/canonical/inference-snaps-cli/releases/download/v2.0.0-beta.14/inference-snaps-cli-linux-arm64.tar.xz
     plugin: dump
     override-build: |
       # For tab completion
@@ -215,7 +208,6 @@ parts:
     organize:
       "server.sh": bin/
       "server-webui.sh": bin/
-      "export-shared-configs.sh": bin/
 
   llamacpp:
     plugin: dump
