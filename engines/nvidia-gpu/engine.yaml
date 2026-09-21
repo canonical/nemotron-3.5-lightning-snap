@@ -24,6 +24,7 @@ model:
   default: nemotron-3.5-lightning-30b-a3b
   options:
     - nemotron-3.5-lightning-30b-a3b
+    - nemotron-3.5-lightning-30b-a3b-nvfp4
 
 configurations:
   sleep-idle-seconds: 600
