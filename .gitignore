@@ -8,5 +8,5 @@ overlay/
 partitions/
 .workshop.lock
 .snapd-relocate/
-components/
+model-weights/
 *.gguf

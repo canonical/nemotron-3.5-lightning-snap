@@ -1,0 +1,38 @@
+name: nemotron-3.5-lightning-30b-a3b-nvfp4
+description: |
+  Nemotron 3.5 Lightning 30B-A3B with NVFP4 GGUF quantization, in GGUF format.
+
+  The model is split into 5 parts.
+
+model-card-url: https://huggingface.co/inference-snaps/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-5GB
+quantization: NVFP4
+disk-size: 20648M
+
+capabilities:
+  - text
+  - thinking
+  - tools
+
+components:
+  - model-nvfp4-1-of-5
+  - model-nvfp4-2-of-5
+  - model-nvfp4-3-of-5
+  - model-nvfp4-4-of-5
+  - model-nvfp4-5-of-5
+
+environment:
+  - MODELS_DIR=/tmp/nemotron-3.5-lightning-30b-a3b-nvfp4-parts
+  - MODEL_FILE=$MODELS_DIR/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00001-of-00005.gguf
+  - MODEL_NAME=nemotron-3.5-lightning-30b-a3b
+
+layout:
+  $MODELS_DIR/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00001-of-00005.gguf:
+    symlink: $SNAP_COMPONENTS/model-nvfp4-1-of-5/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00001-of-00005.gguf
+  $MODELS_DIR/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00002-of-00005.gguf:
+    symlink: $SNAP_COMPONENTS/model-nvfp4-2-of-5/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00002-of-00005.gguf
+  $MODELS_DIR/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00003-of-00005.gguf:
+    symlink: $SNAP_COMPONENTS/model-nvfp4-3-of-5/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00003-of-00005.gguf
+  $MODELS_DIR/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00004-of-00005.gguf:
+    symlink: $SNAP_COMPONENTS/model-nvfp4-4-of-5/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00004-of-00005.gguf
+  $MODELS_DIR/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00005-of-00005.gguf:
+    symlink: $SNAP_COMPONENTS/model-nvfp4-5-of-5/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-00005-of-00005.gguf
