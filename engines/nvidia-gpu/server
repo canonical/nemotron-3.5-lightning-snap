@@ -12,6 +12,7 @@ if [ "${verbose}" = "true" ]; then
   extra_args+=(--verbose)
 fi
 
+set -x
 exec llama-server \
   --model "$MODEL_FILE" \
   --alias "$model_name" \
