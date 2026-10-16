@@ -6,7 +6,7 @@ hf := pipx run --spec "huggingface_hub[cli]" hf
 SNAP_NAME ?= nemotron-3-5-lightning
 ENGINE ?= cpu
 
-.PHONY: all help init build install upload smoke-test install-deps init-submodules download-models download-model-30B-A3B
+.PHONY: all help init build install upload smoke-test install-deps init-submodules download-models
 
 all: help
 
@@ -55,9 +55,14 @@ init-submodules:
 		git submodule update --init; \
 	fi
 
-download-models: download-model-30B-A3B
-	
-download-model-30B-A3B:
-	@echo "Downloading NVIDIA-Nemotron-3.5-Lightning-30B-A3B Q4_K_M GGUF model weights..."
+download-models: download-model-30B-A3B-Q4_K_M download-model-30B-A3B-NVFP4
+
+download-model-30B-A3B-Q4_K_M:
 	$(hf) download inference-snaps/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-5GB \
-		--local-dir components/nemotron-3.5-lightning-30b-a3b/
+		--local-dir model-weights/Nemotron-3.5-Lightning-30B-A3B-Q4_K_M/ \
+		--include "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_K_M-*"
+
+download-model-30B-A3B-NVFP4:
+	$(hf) download inference-snaps/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-5GB \
+		--local-dir model-weights/Nemotron-3.5-Lightning-30B-A3B-NVFP4/ \
+		--include "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-*"
