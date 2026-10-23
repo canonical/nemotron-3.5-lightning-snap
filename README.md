@@ -24,6 +24,7 @@ The snap includes the following hardware-optimized inference engines:
 
 * cpu: Optimized for x64 and ARM (armv8, armv9) CPUs
 * nvidia-gpu: CUDA-enabled GPU acceleration
+* nvidia-gpu-cc10+: CUDA optimized for NVIDIA Blackwell GPUs or later
 
 The most suitable engine is automatically selected based on the available hardware.
 
