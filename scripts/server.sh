@@ -1,5 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-engine="$(modelctl show-engine --format=json | jq -r .name)"
-exec modelctl run --share-provider --fallback-server -- "$SNAP/engines/$engine/server" "$@"
+modelctl diagnose --serve-fallback=openai
+
+engine="$(modelctl engine --format=json | jq -er .name)"
+exec modelctl run --share-provider -- "$SNAP/engines/$engine/server" "$@"
